@@ -1,0 +1,17 @@
+# bash completion for nvrun(1)                              -*- shell-script -*-
+
+_nvrun()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    for (( i=1; i <= COMP_CWORD; i++ )); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            local PATH=$PATH
+            local root_command=${COMP_WORDS[i]}
+            _command_offset $i
+            return
+        fi
+    done
+} &&
+complete -F _nvrun nvrun

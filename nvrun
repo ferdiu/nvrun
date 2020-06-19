@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+chosen_executable=""
+alternative_method=""
+
+# check if is NVIDIA_X_SESSION
+function check-nvidia-session() {
+  local check_gpu="`which check-gpu`"
+  local b_socket_response=$(echo -ne 'S\0' | socat - UNIX-CONNECT:/var/run/bumblebee.socket | awk '{printf $1}')
+  if [[ `${check_gpu}` = "nvidia" ]] && [[ ${b_socket_response%=} = "Error" ]]; then
+    #echo "This is an nvidia-xrun session after all..."
+    NVRUN_NVIDIA_SESSION=1
+  fi
+}
+
+# show help message
+function usage() {
+  echo "Missing argument: application to run"
+  echo -e "usage:\t$0 command-to-run [arg1] [arg2] [arg...]"
+}
+
+# verify executable
+function verify-executable() {
+  if [[ -x "`which $1`" ]]; then
+    chosen_executable="`which $1`"
+    #echo "Found executable \"$1\" in path \"$chosen_executable\""
+  else
+    #echo "Couldn't find executable \"$1\" or it has no permission for execution"
+    chosen_executable=""
+  fi
+}
+
+# return the non-selected method
+function calculate-alternative() {
+  [[ $BUMBLEBEE_METHOD = primusrun ]] && alternative_method="optirun" || alternative_method="primusrun"
+}
+
+# launch program directly
+function launch-program() {
+  if [[ -z "$chosen_executable" ]]; then
+    exec "$@"
+  else
+    exec "$chosen_executable" "$@"
+  fi
+  exit $?
+}
+
+
+# if no arguments are provided show the usage message
+if [[ -z "$@" ]]; then
+  usage
+  exit 1
+fi
+
+# load configuration
+. /etc/default/nvrun
+
+# check if running in nvidia session
+# nvidia-xrun should have set the variable already but if not this function will try to understand it
+if [[ -z "$NVRUN_NVIDIA_SESSION" ]]; then
+  #echo "Apparently not in nvidia-xrun session but checking anyway"
+  check-nvidia-session
+fi
+
+# if not in nvidia session just start the program
+if [[ "$NVRUN_NVIDIA_SESSION" = 1 ]]; then
+  #echo "Normally launching the program because in NVIDIA session mode"
+  launch-program "$@"
+fi
+
+# check if the selected method is available
+verify-executable $BUMBLEBEE_METHOD
+
+# check if alternative method is available and select it for execution if enabled
+if [[ "$BUMBLEBEE_FALLBACK" = 1 ]] && [[ -z "$chosen_executable" ]]; then
+  calculate-alternative
+  verify-executable $alternative_method
+fi
+
+# execute with integrated gpu if fallback to it is enabled
+if [[ -z "$chosen_executable" ]] && [[ "$INTEGRATED_GPU_FALLBACK" = 0 ]]; then
+  exit 1
+fi
+
+# launch calculated command
+launch-program "$@"

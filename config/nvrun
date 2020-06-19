@@ -1,0 +1,29 @@
+# Preferred bumblebee method
+# If nvidia-xrun was installed along side with bumblebee 
+# it means that if it was configured a *.desktop file to launch a program with
+# primusrun or optirun, such *.desktop file could not be used when the
+# session is started using nvidia-xrun. Use "nvrun" instead which will
+# automatically choose between normal launc of the program or the bumblebee
+# selected one.
+# This variable should be either "primusrun" or "optirun"
+# NB primusrun need packages primus, primus-nvidia and primus-libs
+# https://www.bumblebee-project.org/install.html
+# default = BUMBLEBEE_METHOD=primusrun
+BUMBLEBEE_METHOD=primusrun
+
+# When the selected bumblebee method is not executable nvrun can choose to
+# fallback to the other method or just exit the script
+# This could happen for example if primus was selected but not installed:
+# in this case nvrun will try to launch the program with optirun instead
+# 0 = exit the script on method not found
+# 1 = try to execute with the other method
+# default BUMBLEBEE_FALLBACK=1
+BUMBLEBEE_FALLBACK=1
+
+# If neither of the bumblebee method has been found choose if to fallback
+# to integrated GPU or exit the program
+# 0 = exit the script on method not found
+# 1 = execute with integrated GPU
+# default INTEGRATED_GPU_FALLBACK=0
+INTEGRATED_GPU_FALLBACK=0
+
