@@ -11,7 +11,7 @@ $ nvrun COMMAND
 
 ## Structure
 
-* **nvrun** - uses following dir structure: []
+* **nvrun** - uses following dir structure:
 * **/usr/bin/nvrun** - the executable script
 * **/etc/default/nvrun** - the main confing file
 * **[OPTIONAL] /usr/share/bash-completion/completions/nvrun** - the bash-completion file
