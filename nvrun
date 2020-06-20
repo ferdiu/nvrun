@@ -6,6 +6,10 @@ alternative_method=""
 # check if is NVIDIA_X_SESSION
 function check-nvidia-session() {
   local check_gpu="`cat /proc/acpi/bbswitch | awk '{printf $2}'`"
+  if [[ ! -S /var/run/bumblebee.socket ]] && [[ "${check_gpu}" = "ON" ]]; then
+    #echo "This is an nvidia-xrun session after all..."
+    NVRUN_NVIDIA_SESSION=1
+  fi
   local b_socket_response=$(echo -ne 'S\0' | socat - UNIX-CONNECT:/var/run/bumblebee.socket 2> /dev/null | awk '{printf $1}')
   if [[ "${check_gpu}" = "ON" ]] && [[ ${b_socket_response%=} = "Error" ]]; then
     #echo "This is an nvidia-xrun session after all..."
