@@ -16,4 +16,5 @@ $ nvrun COMMAND
 * **/etc/default/nvrun** - the main confing file
 * **[OPTIONAL] /usr/share/bash-completion/completions/nvrun** - the bash-completion file
 
-
+## DEB Package
+The Debian package (not tested in Ubuntu and derivates) can be found [here](https://ferdiu.github.io/debs/nvrun_0.1-1.deb).
